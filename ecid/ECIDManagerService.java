@@ -100,9 +100,8 @@ public class ECIDManagerService extends SystemService {
     private static boolean hasLoadedOtherNotBasedSim = false;
     private static boolean hasLoadedGPRIWithSim = false;
 
-    public static final int MSG_LOADED_SET_ECID_PROPERTY = 0;
-    public static final int MSG_UPDATE_LTE_MODE_INFO = 1;
-    public static final int MSG_PARSER_GPRI_WITH_SIM = 2;
+    public static final int MSG_PASER_GPRI_NONE_RELATED_SIM = 0;
+    public static final int MSG_PARSER_GPRI_WITH_SIM = 1;
 
     private static int currentParserSlotId = PhoneConstants.SIM_ID_1 ;
     private LgeMccMncSimInfo currentSimIno = null;
@@ -130,7 +129,8 @@ public class ECIDManagerService extends SystemService {
     public void onStart() {
         Log.d(TAG, "onStart");
         if(Settings.System.getInt(mContext.getContentResolver(), HAS_LOADED_OTHER_NOT_BASED_SIM,-1) != 1){
-        loadAndSetECIDProperty();
+        //loadAndSetECIDProperty();
+            mHandler.obtainMessage(MSG_PASER_GPRI_NONE_RELATED_SIM).sendToTarget();
         }
     }
 
@@ -235,8 +235,11 @@ public class ECIDManagerService extends SystemService {
         public void handleMessage(Message msg) {
             Log.d(TAG, "LgeParserUpdateHandler handleMessage" + msg.what);
             switch (msg.what) {
-                case MSG_UPDATE_LTE_MODE_INFO:
-                    handleLteReady(msg.arg1);
+                case MSG_PASER_GPRI_NONE_RELATED_SIM:
+                    ParserUpdateThread updatorThread = new ParserUpdateThread(
+                            new ParserUserObj(MSG_PASER_GPRI_NONE_RELATED_SIM, currentParserSlotId),
+                            MSG_PASER_GPRI_NONE_RELATED_SIM);
+                    updatorThread.start();
                     break;
                 case MSG_PARSER_GPRI_WITH_SIM:
                     break;
@@ -253,23 +256,13 @@ public class ECIDManagerService extends SystemService {
      return true;
     }
 
-    private void handleLteReady(int phoneId) {
-    }
-
-    private void loadAndSetECIDProperty(){
-        mHandler.obtainMessage(MSG_LOADED_SET_ECID_PROPERTY)
-                .sendToTarget();
-    }
 
     private LgeMccMncSimInfo getParseredSimInfo(int slotId){
         return null;
     }
+
+
     private class ParserUpdateThread extends Thread {
-        public static final int SIM_ABSENT = 0;
-        public static final int SIM_LOADED = 1;
-        public static final int SIM_LOCKED = 2;
-        public static final int SIM_READY = 3;
-        public static final int SIM_NO_CHANGED = 4;
 
         private ParserUserObj mUserObj;
         private int mEventId;
@@ -282,7 +275,12 @@ public class ECIDManagerService extends SystemService {
         @Override
         public void run() {
             switch (mEventId) {
-
+                case MSG_PASER_GPRI_NONE_RELATED_SIM:
+                    parserCommonGPRIWithOutSim();
+                    break;
+                case MSG_PARSER_GPRI_WITH_SIM
+                    parserSpecialGPRIWithSim();
+                    break;
                 default:
                     break;
             }
@@ -299,6 +297,13 @@ public class ECIDManagerService extends SystemService {
         }
     }
 
+    private void parserCommonGPRIWithOutSim(){
+
+    }
+
+    private void parserSpecialGPRIWithSim(){
+
+    }
     private final IBinder mService = new IECIDManager.Stub() {
         @Override
         public String getValue(String name) {
