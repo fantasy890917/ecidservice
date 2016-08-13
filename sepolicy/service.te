@@ -1,0 +1,6 @@
+#huaqin common part
+type aircontrol_service, app_api_service, system_server_service, service_manager_type;
+type flashlight_service, app_api_service, system_server_service, service_manager_type;
+#acer GameZone
+type acer_gaming_service, app_api_service, system_server_service, service_manager_type;
+type ecid_parser_service, app_api_service, system_server_service, service_manager_type;

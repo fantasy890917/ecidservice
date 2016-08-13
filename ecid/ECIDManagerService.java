@@ -86,6 +86,9 @@ import com.android.internal.telephony.IccCardConstants;
 import com.android.internal.telephony.Phone;
 import com.android.internal.telephony.PhoneConstants;
 import com.android.internal.telephony.PhoneFactory;
+import com.android.server.ecid.email.OperatorConfigData;
+import com.android.server.ecid.utils.GeneralParserAttribute;
+import com.android.server.ecid.utils.LgeMccMncSimInfo;
 /// M: end
 
 public class ECIDManagerService extends SystemService {
@@ -128,6 +131,7 @@ public class ECIDManagerService extends SystemService {
     @Override
     public void onStart() {
         Log.d(TAG, "onStart");
+        publishBinderService(Context.ECID_PARSER_SERVICE, mService);
         if(Settings.System.getInt(mContext.getContentResolver(), HAS_LOADED_OTHER_NOT_BASED_SIM,-1) != 1){
         //loadAndSetECIDProperty();
             mHandler.obtainMessage(MSG_PASER_GPRI_NONE_RELATED_SIM).sendToTarget();
@@ -235,14 +239,20 @@ public class ECIDManagerService extends SystemService {
         public void handleMessage(Message msg) {
             Log.d(TAG, "LgeParserUpdateHandler handleMessage" + msg.what);
             switch (msg.what) {
-                case MSG_PASER_GPRI_NONE_RELATED_SIM:
+                case MSG_PASER_GPRI_NONE_RELATED_SIM:{
                     ParserUpdateThread updatorThread = new ParserUpdateThread(
                             new ParserUserObj(MSG_PASER_GPRI_NONE_RELATED_SIM, currentParserSlotId),
                             MSG_PASER_GPRI_NONE_RELATED_SIM);
                     updatorThread.start();
                     break;
-                case MSG_PARSER_GPRI_WITH_SIM:
+                }
+                case MSG_PARSER_GPRI_WITH_SIM:{
+                    ParserUpdateThread updatorThread = new ParserUpdateThread(
+                            new ParserUserObj(MSG_PARSER_GPRI_WITH_SIM, currentParserSlotId),
+                            MSG_PARSER_GPRI_WITH_SIM);
+                    updatorThread.start();
                     break;
+                }
                 default:
                     Log.d(TAG, "Unknown msg:" + msg.what);
             }
@@ -278,7 +288,7 @@ public class ECIDManagerService extends SystemService {
                 case MSG_PASER_GPRI_NONE_RELATED_SIM:
                     parserCommonGPRIWithOutSim();
                     break;
-                case MSG_PARSER_GPRI_WITH_SIM
+                case MSG_PARSER_GPRI_WITH_SIM:
                     parserSpecialGPRIWithSim();
                     break;
                 default:
@@ -288,10 +298,10 @@ public class ECIDManagerService extends SystemService {
     }
 
     private static class ParserUserObj {
-        public String reason;
+        public int reason;
         public int slotId;
 
-        ParserUserObj(String reason, int slotId) {
+        ParserUserObj(int reason, int slotId) {
             this.reason = reason;
             this.slotId = slotId;
         }
@@ -302,7 +312,64 @@ public class ECIDManagerService extends SystemService {
     }
 
     private void parserSpecialGPRIWithSim(){
+        LgeMccMncSimInfo simInfo = new LgeMccMncSimInfo("647","10");
+        HashMap<String, String> mConfig = new HashMap<String,String>();
 
+        Log.d(TAG,"Parser apkoverlay-Contacts3_JB:contacts_setting.xml");
+        GeneralProfileParser lgeContactSettingParser =  new LgeContactSettingParser(mContext);
+        lgeContactSettingParser.loadLgProfile(GeneralParserAttribute.FILE_PATH_CONTACT_SETTINGS, mConfig, simInfo);
+        Log.d(TAG,"mConfig=="+mConfig.toString());
+
+        mConfig = new HashMap<String,String>();
+        Log.d(TAG,"Parser apkoverlay-LGPartnerBookmarksProvider: browser_config.xml");
+        LgeBrowserProfileParser lgeBrowserProfileParser =  new LgeBrowserProfileParser(mContext);
+        String str =  lgeBrowserProfileParser.loadLgProfileToString(GeneralParserAttribute.FILE_PATH_BROWSER_CONFIG, mConfig, simInfo);
+        Log.d(TAG,"mConfig=="+mConfig.toString());
+        mConfig = new HashMap<String,String>();
+
+        Log.d(TAG,"Parser GPRI: telephony.xml");
+        GeneralProfileParser lgeTelephonyParser = new LgeTelephonyParser(mContext);
+        lgeTelephonyParser.loadLgProfile(GeneralParserAttribute.FILE_PATH_TELEPHONY_PROFILE, mConfig, simInfo);
+        Log.d(TAG,"mConfig=="+mConfig.toString());
+        mConfig = new HashMap<String,String>();
+
+        Log.d(TAG,"should Parser LGTelephonyServices_config.xml, but no it,i will parser telephony_config.xml");
+        GeneralProfileParser LgeConfigParser = new LgeConfigParser(mContext);
+        LgeConfigParser.loadLgProfile(GeneralParserAttribute.FILE_PATH_TELEPHONY_CONFIG, mConfig, simInfo);
+        Log.d(TAG,"mConfig=="+mConfig.toString());
+        mConfig = new HashMap<String,String>();
+
+        //mms special:<siminfo operator="default" country="" mcc="" mnc="" />
+        Log.d(TAG,"Parser apkoverlay-LGMessage4:mms_config.xml");
+        GeneralProfileParser lgeMmsConfigParser = new LgeMmsConfigParser(mContext);
+        lgeMmsConfigParser.loadLgProfile(GeneralParserAttribute.FILE_PATH_MMS_CONFIG, mConfig, simInfo);
+        Log.d(TAG,"mConfig=="+mConfig.toString());
+        mConfig = new HashMap<String,String>();
+
+
+        Log.d(TAG,"Parser apkoverlay-LGCbReceiver4:cb_config.xml");
+        GeneralProfileParser lgeCbConfigParser = new LgeCBConfigParser(mContext);
+        lgeCbConfigParser.loadLgProfile(GeneralParserAttribute.FILE_PATH_CB_CONFIG, mConfig, simInfo);
+        Log.d(TAG,"mConfig=="+mConfig.toString());
+        mConfig = new HashMap<String,String>();
+
+        Log.d(TAG,"Parser apkoverlay-LGEmail4:email_config.xml");
+        GeneralProfileParser lgeEmailConfigParser = new LgeEmailConfigParser(mContext);
+        lgeEmailConfigParser.loadLgProfile(GeneralParserAttribute.FILE_PATH_EMAIL_CONFIG, mConfig, simInfo);
+        OperatorConfigData data = ((LgeEmailConfigParser) lgeEmailConfigParser).getData();
+        Log.d(TAG,"mConfig=="+mConfig.toString());
+        mConfig = new HashMap<String,String>();
+
+        Log.d(TAG,"Parser apkoverlay-LGSettingsProvider:settings_provider_config.xml");
+        GeneralProfileParser lgeSettingsProviderParser = new LgeSettingsProviderParser(mContext);
+        lgeSettingsProviderParser.loadLgProfile(GeneralParserAttribute.FILE_PATH_SETTINGS_PROVIDER_CONFIG, mConfig, simInfo);
+        Log.d(TAG,"mConfig=="+mConfig.toString());
+
+        mConfig = new HashMap<String,String>();
+        Log.d(TAG,"Parser GPRI- lteready.xml");
+        GeneralProfileParser lgeLTEConfigParser = new LgeLTEConfigParser(mContext);
+        lgeLTEConfigParser.loadLgProfile(GeneralParserAttribute.FILE_PATH_LTE_READY_CONFIG, mConfig, simInfo);
+        Log.d(TAG,"mConfig=="+mConfig.toString());
     }
     private final IBinder mService = new IECIDManager.Stub() {
         @Override

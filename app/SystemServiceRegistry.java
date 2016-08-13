@@ -777,7 +777,7 @@ final class SystemServiceRegistry {
                 }
                 return new MidiManager(IMidiManager.Stub.asInterface(b));
             }});
-
+        
         registerService(Context.RADIO_SERVICE, RadioManager.class,
                 new CachedServiceFetcher<RadioManager>() {
             @Override

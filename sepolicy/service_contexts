@@ -1,0 +1,9 @@
+
+# ==============================================
+# Huaqin Policy Rule
+# ==============================================
+
+aircontrol    u:object_r:aircontrol_service:s0
+flashlight    u:object_r:flashlight_service:s0
+acer_gaming   u:object_r:acer_gaming_service:s0
+ecid_service   u:object_r:ecid_parser_service:s0

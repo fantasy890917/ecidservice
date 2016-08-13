@@ -18,14 +18,10 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.HashMap;
 import java.util.Iterator;
-
 public class LgeLTEConfigParser extends GeneralProfileParser implements LteInfoConstants {
-
-    public LgeParserUpdateHandler mLteHandler;
 
 	public LgeLTEConfigParser(Context context) {
 		super(context);
-        mLteHandler = new LgeParserUpdateHandler(mContext);
 	}
 
 	public HashMap<String, String> loadLgProfile(String path, HashMap<String, String> map, LgeMccMncSimInfo siminfo) {
@@ -54,8 +50,6 @@ public class LgeLTEConfigParser extends GeneralProfileParser implements LteInfoC
         if (cp.getValueMap() != null)
         {
             changeGpriValueFromLGE(map, cp.getValueMap());
-            mLteHandler.setInfoMap(map);
-            mLteHandler.sendMessage(mLteHandler.obtainMessage(MSG_UPDATE_LTE_MODE_INFO,mPhoneId));
         }
 
         return cp.getValueMap();
