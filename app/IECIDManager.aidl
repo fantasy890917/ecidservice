@@ -18,8 +18,6 @@ package android.app;
 import android.app.ECIDManager;
 /** @hide */
 interface IECIDManager {
-    String getValue(String name);  
-    int update(String name, String value, int attribute); 
     int getECIDPhoneId();
     boolean hasLteMode();
     
@@ -28,7 +26,7 @@ interface IECIDManager {
     List<String>  getCBChannelNameList();
     
     String getBrowserHomePager();
-    List<ECIDManager.BookmarkInfo> getBookmark();
+    List<ECIDManager.Bookmark> getBookmark();
     
     boolean enableDataConsumptionWwarning();
     String getDataWarningNotification();
@@ -39,13 +37,13 @@ interface IECIDManager {
     ECIDManager.EmailSettingsInfo getEmailSettingsInfo();
     ECIDManager.EmailSettingsProtocol getEmailSettingsProtocl();
     List<ECIDManager.EmailServerProvider> getEmailServerProvider();
-    
+    ECIDManager.LgeSimInfo getECIDSimInfo();
     int getDefaultContactPath();
-    
-    boolean getBooleanValue(String key);
-    int getIntValue(String Key);
-    String getStringValue(String Key);
-
+    boolean enableAMRWBGSM();
+    boolean enableAMRWBUMTS();
+    boolean getBooleanValue(String key, String model);
+    int getIntValue(String key, String model);
+    String getStringValue(String Key, String model);
 }
 
 

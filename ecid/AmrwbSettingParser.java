@@ -4,24 +4,21 @@ package com.android.server.ecid;
 import android.content.Context;
 import android.util.Log;
 
-import com.android.server.ecid.contacts.ContactsParserAttribute;
-import com.android.server.ecid.utils.ProfileData;
-import com.android.server.ecid.utils.Utils;
-
+import com.android.server.ecid.amrwb.AmrwbParserAttribute;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
+import com.android.server.ecid.utils.*;
+public class AmrwbSettingParser extends GeneralProfileParser
+		implements AmrwbParserAttribute {
+	private static final String TAG = Utils.APP+AmrwbSettingParser.class.getSimpleName();
 
-public class LgeContactSettingParser extends GeneralProfileParser
-		implements ContactsParserAttribute {
-	private static final String TAG = Utils.APP+LgeContactSettingParser.class.getSimpleName();
 
 
-   
-    public LgeContactSettingParser(Context context) {
+    public AmrwbSettingParser(Context context) {
 		super(context);
 	}
 
@@ -59,9 +56,8 @@ public class LgeContactSettingParser extends GeneralProfileParser
     {
 		Log.d(TAG,"changeGpriValueFromLGE");
         HashMap<String, String> matchmap = new HashMap<String,String>();
-        matchmap.put(KEY_DEFAULT_STORAGE_LOCATION, ATTR_ITEM_STORAGE);
-        //matchmap.put("Phonebook@Display_the_numbers_on_phonebook", "display_number_on_phonebook");
-        //matchmap.put("Phonebook@Display_dialed_SDN_in_the_call_register", "display_SDN_in_call_register");
+        matchmap.put(KEY_ATTR_NAME_AMRWB_2G, ATTR_NAME_AMRWB_2G);
+		matchmap.put(KEY_ATTR_NAME_AMRWB_3G, ATTR_NAME_AMRWB_3G);
         Iterator<String> key = matchmap.keySet().iterator(); 
         while(key.hasNext()) 
         {

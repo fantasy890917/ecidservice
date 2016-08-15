@@ -17,9 +17,7 @@
 package android.app;
 
 parcelable ECIDManager.LgeSimInfo;
-
 parcelable ECIDManager.EmailSettingsInfo;
 parcelable ECIDManager.EmailSettingsProtocol;
 parcelable ECIDManager.EmailServerProvider;
-
-parcelable ECIDManager.BookmarkInfo;
+parcelable ECIDManager.Bookmark;
